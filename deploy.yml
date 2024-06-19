@@ -1,0 +1,42 @@
+name: Build and Deploy to S3
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: |
+          # No dependencies for this simple HTML example
+
+      - name: Build application
+        run: |
+          # No build step needed for this simple HTML example
+
+      - name: Archive application with timestamp
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          mkdir -p dist
+          cp index.html dist/
+          zip -r "artifact-$TIMESTAMP.zip" dist
+
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          aws s3 cp "artifact-$TIMESTAMP.zip" "s3://${{ secrets.AWS_S3_BUCKET }}/artifact-$TIMESTAMP.zip"
